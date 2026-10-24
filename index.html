@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>KDC '26 Candy & Prize Booth</title>
+  <link rel="stylesheet" href="css/booth.css">
+  <style>
+    html, body { margin: 0; height: 100%; background: #6a0010; overflow: hidden; }
+    #stage { width: 1080px; height: 1920px; position: absolute; left: 50%; top: 50%; transform-origin: center center; }
+  </style>
+  <script>
+    function fitStage() {
+      var s = document.getElementById("stage");
+      if (!s) return;
+      var k = Math.min(innerWidth / 1080, innerHeight / 1920);
+      s.style.transform = "translate(-50%, -50%) scale(" + k + ")";
+    }
+    addEventListener("resize", fitStage);
+    addEventListener("DOMContentLoaded", fitStage);
+  </script>
+</head>
+<body>
+  <div id="stage">
+    <button id="begin" class="screen begin is-in" type="button">
+      <div class="awning" aria-hidden="true"><div class="awning-stripes"></div><div class="awning-drape"></div></div>
+      <div class="begin-stack">
+        <img src="assets/posters/candy.png" alt="" draggable="false">
+        <img src="assets/posters/prize.png" alt="" draggable="false">
+      </div>
+      <span class="begin-cta">
+        <strong>Tap here to begin</strong>
+        <em>Candy and prizes</em>
+      </span>
+    </button>
+
+    <section id="home" class="screen" hidden>
+      <div class="awning" aria-hidden="true"><div class="awning-stripes"></div><div class="awning-drape"></div></div>
+      <div class="doors">
+        <button class="door" type="button" data-booth="candy">
+          <img src="assets/posters/candy.png" alt="" draggable="false">
+          <span>See the candy</span>
+        </button>
+        <button class="door" type="button" data-booth="prize">
+          <img src="assets/posters/prize.png" alt="" draggable="false">
+          <span>See the prizes</span>
+        </button>
+      </div>
+      <div class="home-foot">
+        <p class="display">Candy or prizes?</p>
+        <p>Tap a booth, then type your tickets.</p>
+        <p class="event">KDC '26</p>
+      </div>
+    </section>
+
+    <section id="booth" class="screen" hidden>
+      <div class="sun" aria-hidden="true"></div>
+      <div class="awning" aria-hidden="true"><div class="awning-stripes"></div><div class="awning-drape"></div></div>
+      <div class="switch">
+        <button class="tab" type="button" data-booth="candy" id="tab-candy">Candy</button>
+        <button class="tab" type="button" data-booth="prize" id="tab-prize">Prizes</button>
+        <button class="texty" type="button" id="reset">Start over</button>
+      </div>
+
+      <div class="wallet" id="wallet">
+        <div class="stepper">
+          <button class="round" type="button" id="minus" aria-label="One fewer ticket">−</button>
+          <button class="stat" type="button" id="ticket-btn">
+            <b id="ticket-count">?</b>
+            <span>tickets</span>
+          </button>
+          <button class="round" type="button" id="plus" aria-label="One more ticket">+</button>
+        </div>
+        <p class="winline" id="winline" aria-live="polite">
+          <b id="win-count">?</b>
+          <span id="win-label">Tap the ticket and type how many you have</span>
+        </p>
+        <div class="nudges">
+          <button type="button" id="minus5">−5</button>
+          <button type="button" id="type">Type a number</button>
+          <button type="button" id="plus5">+5</button>
+        </div>
+        <div class="filters">
+          <button type="button" id="filter-all" class="on">Everything</button>
+          <button type="button" id="filter-mine">What I can get</button>
+        </div>
+      </div>
+
+      <div id="grid-wrap">
+        <div id="grid"></div>
+        <p id="empty" hidden>Nothing at this ticket count yet.</p>
+      </div>
+
+      <footer id="dock">
+        <div id="dock-copy">
+          <b id="dock-title">Your haul</b>
+          <span id="dock-sub">Tap a candy or a prize</span>
+        </div>
+        <button type="button" id="surprise">Surprise me</button>
+        <button type="button" id="show">Show my haul</button>
+      </footer>
+    </section>
+
+    <div id="sheet" class="overlay" hidden>
+      <button class="scrim" type="button" id="sheet-scrim" aria-label="Close"></button>
+      <div class="panel" role="dialog" aria-modal="true" aria-labelledby="sheet-name">
+        <div class="grab" aria-hidden="true"></div>
+        <button class="texty close-x" type="button" id="sheet-close">Close</button>
+        <img id="sheet-img" alt="" draggable="false">
+        <h2 id="sheet-name"></h2>
+        <p id="sheet-price"></p>
+        <p id="sheet-fit"></p>
+        <div class="sheet-step">
+          <button class="round" type="button" id="sheet-dec" aria-label="Remove one">−</button>
+          <div class="qty-block">
+            <b id="sheet-qty">0</b>
+            <span id="sheet-qty-label">in your haul</span>
+          </div>
+          <button class="round" type="button" id="sheet-inc" aria-label="Add one">+</button>
+        </div>
+        <p id="sheet-note"></p>
+        <div id="sheet-also"></div>
+      </div>
+    </div>
+
+    <div id="keypad" class="overlay" hidden>
+      <button class="scrim" type="button" id="keypad-scrim" aria-label="Close"></button>
+      <div class="keypad-card" role="dialog" aria-modal="true" aria-label="How many tickets">
+        <p>How many tickets do you have?</p>
+        <div id="keypad-value" class="display">?</div>
+        <div class="keys">
+          <button type="button" data-key="1">1</button>
+          <button type="button" data-key="2">2</button>
+          <button type="button" data-key="3">3</button>
+          <button type="button" data-key="4">4</button>
+          <button type="button" data-key="5">5</button>
+          <button type="button" data-key="6">6</button>
+          <button type="button" data-key="7">7</button>
+          <button type="button" data-key="8">8</button>
+          <button type="button" data-key="9">9</button>
+          <button type="button" data-key="c">Clear</button>
+          <button type="button" data-key="0">0</button>
+          <button type="button" data-key="b" aria-label="Delete">⌫</button>
+        </div>
+        <button type="button" class="done" id="keypad-done">See what I can win</button>
+      </div>
+    </div>
+
+    <div id="celebrate" class="overlay" hidden>
+      <div class="ticket-result" role="dialog" aria-modal="true" aria-labelledby="cel-title">
+        <p class="show-label">Show this to the booth</p>
+        <h2 id="cel-title" class="display">Your haul</h2>
+        <ol id="cel-list"></ol>
+        <div class="cel-total">
+          <span id="cel-spent"></span>
+          <span id="cel-left"></span>
+        </div>
+        <div class="cel-actions">
+          <button type="button" id="cel-back">Change my haul</button>
+          <button type="button" class="done" id="cel-done">Next person</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="confetti" aria-hidden="true"></div>
+    <div id="toast" hidden></div>
+  </div>
+  <script src="js/app.js"></script>
+</body>
+</html>
